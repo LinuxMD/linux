@@ -106,7 +106,9 @@
 #include "sys/reboot.h"
 #include "sys/resource.h"
 #include "sys/select.h"
+#include "sys/sendfile.h"
 #include "sys/stat.h"
+#include "sys/statfs.h"
 #include "sys/syscall.h"
 #include "sys/sysmacros.h"
 #include "sys/time.h"
@@ -133,6 +135,9 @@
 #include "err.h"
 #include "byteswap.h"
 #include "endian.h"
+#include "assert.h"
+#include "alloca.h"
+#include "socket.h"
 
 /* Used by programs to avoid std includes */
 #define NOLIBC

@@ -7,8 +7,16 @@
 #ifndef _NOLIBC_ARCH_POWERPC_H
 #define _NOLIBC_ARCH_POWERPC_H
 
+#include "elf.h"
+
+#define _NOLIBC_ARCH_HAS_RELOC
+#ifndef __powerpc64__
+#define _NOLIBC_ARCH_ELF32
+#endif
+
 #include "compiler.h"
 #include "crt.h"
+#include "reloc.h"
 
 /* Syscalls for PowerPC :
  *   - stack is 16-byte aligned
@@ -177,15 +185,31 @@
  * "omit-frame-pointer" fails with __attribute__((no_stack_protector)) but
  * works with __attribute__((__optimize__("-fno-stack-protector")))
  */
-#ifdef __no_stack_protector
-#undef __no_stack_protector
-#define __no_stack_protector __attribute__((__optimize__("-fno-stack-protector")))
+#ifdef __nolibc_no_stack_protector
+#undef __nolibc_no_stack_protector
+#define __nolibc_no_stack_protector __attribute__((__optimize__("-fno-stack-protector")))
 #endif
 #endif /* !__powerpc64__ */
 
 #ifndef NOLIBC_NO_RUNTIME
+
+#ifdef NOLIBC_WANT_RELOC
+static __inline__ int __relocate_rela(unsigned long base, _nolibc_elf_rela *entry)
+{
+	switch (_nolibc_elf_r_type(entry->r_info)) {
+	case R_PPC_RELATIVE:
+		__relocate_rela_relative(base, entry);
+		break;
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+#endif /* NOLIBC_WANT_RELOC */
+
 /* startup code */
-void __attribute__((weak, noreturn)) __nolibc_entrypoint __no_stack_protector _start(void)
+void __attribute__((weak, noreturn)) __nolibc_entrypoint __nolibc_no_stack_protector _start(void)
 {
 #ifdef __powerpc64__
 #if _CALL_ELF == 2

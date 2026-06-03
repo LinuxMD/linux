@@ -48,6 +48,28 @@ int access(const char *path, int amode)
 	return faccessat(AT_FDCWD, path, amode, 0);
 }
 
+/*
+ * char *getcwd(char *buf, size_t size);
+ */
+
+static __attribute__((unused))
+int _sys_getcwd(char *buf, size_t size)
+{
+	return __nolibc_syscall2(__NR_getcwd, buf, size);
+}
+
+static __attribute__((unused))
+char *getcwd(char *buf, size_t size)
+{
+	/* If successful we get the number of bytes written into
+	 * the buffer, so check the result is positive.
+	 */
+	if (__sysret(_sys_getcwd(buf, size)) > 0)
+		return buf;
+
+	/* On error return NULL, __sysret() above will have set errno */
+	return NULL;
+}
 
 static __attribute__((unused))
 int msleep(unsigned int msecs)
@@ -60,6 +82,26 @@ int msleep(unsigned int msecs)
 			!!(my_timeval.tv_usec % 1000);
 	else
 		return 0;
+}
+
+/*
+ * ssize_t readlink(const char *path, char *buf, size_t bufsiz);
+ */
+
+static __attribute__((unused))
+ssize_t _sys_readlink(const char *path, char *buf, size_t bufsiz)
+{
+#ifdef __NR_readlink
+	return __nolibc_syscall3(__NR_readlink, path, buf, bufsiz);
+#else
+	return __nolibc_syscall4(__NR_readlinkat, AT_FDCWD, path, buf, bufsiz);
+#endif
+}
+
+static __attribute__((unused))
+ssize_t readlink(const char *path, char *buf, size_t bufsiz)
+{
+	return __sysret(_sys_readlink(path, buf, bufsiz));
 }
 
 static __attribute__((unused))
