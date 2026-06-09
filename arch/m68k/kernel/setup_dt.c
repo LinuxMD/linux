@@ -87,8 +87,12 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
 	max_zone_pfn[ZONE_NORMAL] = max_low;
 }
 
+extern int __init setup_early_printk(char *buf);
+
 void __init setup_arch(char **cmdline_p)
 {
+	setup_early_printk(NULL);
+
 	// We need to get this somehow better
 	setup_machine_fdt(_dtblob);
 

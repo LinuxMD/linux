@@ -114,6 +114,8 @@
 #include <asm/sections.h>
 #include <asm/cacheflush.h>
 
+#include <asm/everdrive.h>
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/initcall.h>
 
@@ -1018,6 +1020,8 @@ void start_kernel(void)
 {
 	char *command_line;
 	char *after_dashes;
+
+	everdrive_usb_write('K');
 
 	set_task_stack_end_magic(&init_task);
 	smp_setup_processor_id();
