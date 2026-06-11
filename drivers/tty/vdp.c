@@ -28,7 +28,7 @@ static int megadrive_vdp_probe(struct platform_device *pdev)
 	int irq;
 	int ret;
 
-	printk("%s:%d\n", __func__, __LINE__);
+//	printk("%s:%d\n", __func__, __LINE__);
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
@@ -43,7 +43,7 @@ static int megadrive_vdp_probe(struct platform_device *pdev)
 		return ret;
 	}
 
-	dev_info(&pdev->dev, "registered IRQ %d\n", irq);
+//	dev_info(&pdev->dev, "registered IRQ %d\n", irq);
 
 	return 0;
 }
