@@ -7,6 +7,9 @@
 
 static inline void everdrive_usb_write(u8 value)
 {
+	unsigned long flags;
+
+	local_irq_save(flags);
 	asm volatile (
 		"move.w #0x2b, " STR(MEGADRIVE_EVERDRIVE_MAILBOX) "\n"
 		"move.w #0xd4, " STR(MEGADRIVE_EVERDRIVE_MAILBOX) "\n"
@@ -16,6 +19,7 @@ static inline void everdrive_usb_write(u8 value)
 		"move.w #0x01, " STR(MEGADRIVE_EVERDRIVE_MAILBOX) "\n"
 		"move.w %0,  " STR(MEGADRIVE_EVERDRIVE_MAILBOX) "\n"
 	: : "d" (value));
+	local_irq_restore(flags);
 }
 
 #endif /* EVERDRIVE_H */
