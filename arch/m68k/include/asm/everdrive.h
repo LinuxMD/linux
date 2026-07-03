@@ -3,7 +3,8 @@
 
 #include <asm/io.h>
 
-#define MEGADRIVE_EVERDRIVE_MAILBOX 0xa130d0
+#define MEGADRIVE_EVERDRIVE_MAILBOX	0xa130d0
+#define MEGADRIVE_EVERDRIVE_TIMER	0xa130d6
 
 static inline void everdrive_usb_write(u8 value)
 {

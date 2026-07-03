@@ -30,12 +30,17 @@ static inline cycles_t get_cycles(void)
 }
 
 extern unsigned long (*mach_random_get_entropy)(void);
+extern unsigned long everdrive_random_get_entropy(void);
 
 static inline unsigned long random_get_entropy(void)
 {
+#ifdef CONFIG_M68KDT_MEGADRIVE
+	return everdrive_random_get_entropy();
+#else
 	if (mach_random_get_entropy)
 		return mach_random_get_entropy();
 	return random_get_entropy_fallback();
+#endif
 }
 #define random_get_entropy	random_get_entropy
 
