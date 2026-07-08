@@ -108,10 +108,7 @@ L1:	movel	sp@(8), d0	/* d0 = dividend */
 	negl	d2
 #endif
 
-L2:	movel	d1, sp@-
-	movel	d0, sp@-
-	jbsr	SYM (__udivsi3)	/* divide abs(dividend) by abs(divisor) */
-	addql	IMM (8), sp
+L2:	jbsr	SYM (__udivmodsi4_reg)	/* divide abs(dividend) by abs(divisor) */
 
 	tstb	d2
 	jpl	L3
