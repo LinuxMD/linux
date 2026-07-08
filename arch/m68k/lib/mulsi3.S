@@ -86,6 +86,17 @@ General Public License for more details. */
 	.proc
 	.globl	SYM (__mulsi3)
 SYM (__mulsi3):
+#if !(defined(__mcf5200__) || defined(__mcoldfire__))
+/* If both operands fit in 16 bits (the common case), both cross
+   products are zero and a single mulu gives the full 32 bit result.  */
+	movew	sp@(4), d0	/* x0 */
+	orw	sp@(8), d0	/* x0 | y0 */
+	jne	L1
+	movew	sp@(6), d0	/* x1 */
+	muluw	sp@(10), d0	/* x1*y1 */
+	rts
+L1:
+#endif
 	movew	sp@(4), d0	/* x0 -> d0 */
 	muluw	sp@(10), d0	/* x0*y1 */
 	movew	sp@(6), d1	/* x1 -> d1 */
