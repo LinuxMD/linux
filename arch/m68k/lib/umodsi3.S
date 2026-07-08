@@ -88,21 +88,7 @@ General Public License for more details. */
 SYM (__umodsi3):
 	movel	sp@(8), d1	/* d1 = divisor */
 	movel	sp@(4), d0	/* d0 = dividend */
-	movel	d1, sp@-
-	movel	d0, sp@-
-	jbsr	SYM (__udivsi3)
-	addql	IMM (8), sp
-	movel	sp@(8), d1	/* d1 = divisor */
-#if !(defined(__mcf5200__) || defined(__mcoldfire__))
-	movel	d1, sp@-
-	movel	d0, sp@-
-	jbsr	SYM (__mulsi3)	/* d0 = (a/b)*b */
-	addql	IMM (8), sp
-#else
-	mulsl	d1,d0
-#endif
-	movel	sp@(4), d1	/* d1 = dividend */
-	subl	d0, d1		/* d1 = a - (a/b)*b */
-	movel	d1, d0
+	jbsr	SYM (__udivmodsi4_reg)
+	movel	d1, d0		/* d0 = remainder */
 	rts
 	EXPORT_SYMBOL(__umodsi3)
