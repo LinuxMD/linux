@@ -89,23 +89,19 @@ General Public License for more details. */
 	.globl	SYM (__modsi3)
 SYM (__modsi3):
 	movel	sp@(8), d1	/* d1 = divisor */
-	movel	sp@(4), d0	/* d0 = dividend */
-	movel	d1, sp@-
-	movel	d0, sp@-
-	jbsr	SYM (__divsi3)
-	addql	IMM (8), sp
-	movel	sp@(8), d1	/* d1 = divisor */
-#if !(defined(__mcf5200__) || defined(__mcoldfire__))
-	movel	d1, sp@-
-	movel	d0, sp@-
-	jbsr	SYM (__mulsi3)	/* d0 = (a/b)*b */
-	addql	IMM (8), sp
-#else
-	mulsl	d1,d0
-#endif
-	movel	sp@(4), d1	/* d1 = dividend */
-	subl	d0, d1		/* d1 = a - (a/b)*b */
-	movel	d1, d0
+	jpl	L1
+	negl	d1		/* use abs(divisor): the C remainder takes
+				   the sign of the dividend only */
+L1:	movel	sp@(4), d0	/* d0 = dividend */
+	jpl	L2
+	negl	d0
+	jbsr	SYM (__udivmodsi4_reg)
+	movel	d1, d0		/* d0 = -(abs(a) mod abs(b)) */
+	negl	d0
+	rts
+
+L2:	jbsr	SYM (__udivmodsi4_reg)
+	movel	d1, d0		/* d0 = abs(a) mod abs(b) */
 	rts
 
 	EXPORT_SYMBOL(__modsi3)
