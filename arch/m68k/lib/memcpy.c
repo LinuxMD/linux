@@ -43,7 +43,7 @@ void *memcpy(void *to, const void *from, size_t n)
 	if (temp) {
 		long *lto = to;
 		const long *lfrom = from;
-#if defined(CONFIG_M68000) || defined(CONFIG_COLDFIRE)
+#if defined(CONFIG_COLDFIRE)
 		for (; temp; temp--)
 			*lto++ = *lfrom++;
 #else
@@ -53,7 +53,16 @@ void *memcpy(void *to, const void *from, size_t n)
 			"	andw  #7,%3\n"
 			"	lsrl  #3,%2\n"
 			"	negw  %3\n"
+#if defined(CONFIG_M68000)
+			/*
+			 * 68000 has no scaled index mode; each movel
+			 * below is one word, so double the index by hand.
+			 */
+			"	addw  %3,%3\n"
+			"	jmp   %%pc@(1f,%3:w)\n"
+#else
 			"	jmp   %%pc@(1f,%3:w:2)\n"
+#endif
 			"4:	movel %0@+,%1@+\n"
 			"	movel %0@+,%1@+\n"
 			"	movel %0@+,%1@+\n"
