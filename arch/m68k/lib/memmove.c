@@ -45,10 +45,45 @@ void *memmove(void *dest, const void *src, size_t n)
 		if (temp) {
 			long *ldest = dest;
 			const long *lsrc = src;
+#if defined(CONFIG_COLDFIRE)
 			temp--;
 			do
 				*ldest++ = *lsrc++;
 			while (temp--);
+#else
+			size_t temp1;
+			asm volatile (
+				"	movel %2,%3\n"
+				"	andw  #7,%3\n"
+				"	lsrl  #3,%2\n"
+				"	negw  %3\n"
+#if defined(CONFIG_M68000)
+				/*
+				 * 68000 has no scaled index mode; each
+				 * movel below is one word, so double the
+				 * index by hand.
+				 */
+				"	addw  %3,%3\n"
+				"	jmp   %%pc@(1f,%3:w)\n"
+#else
+				"	jmp   %%pc@(1f,%3:w:2)\n"
+#endif
+				"4:	movel %0@+,%1@+\n"
+				"	movel %0@+,%1@+\n"
+				"	movel %0@+,%1@+\n"
+				"	movel %0@+,%1@+\n"
+				"	movel %0@+,%1@+\n"
+				"	movel %0@+,%1@+\n"
+				"	movel %0@+,%1@+\n"
+				"	movel %0@+,%1@+\n"
+				"1:	dbra  %2,4b\n"
+				"	clrw  %2\n"
+				"	subql #1,%2\n"
+				"	jpl   4b"
+				: "=a" (lsrc), "=a" (ldest), "=d" (temp),
+				  "=&d" (temp1)
+				: "0" (lsrc), "1" (ldest), "2" (temp));
+#endif
 			dest = ldest;
 			src = lsrc;
 		}
@@ -96,10 +131,45 @@ void *memmove(void *dest, const void *src, size_t n)
 		if (temp) {
 			long *ldest = dest;
 			const long *lsrc = src;
+#if defined(CONFIG_COLDFIRE)
 			temp--;
 			do
 				*--ldest = *--lsrc;
 			while (temp--);
+#else
+			size_t temp1;
+			asm volatile (
+				"	movel %2,%3\n"
+				"	andw  #7,%3\n"
+				"	lsrl  #3,%2\n"
+				"	negw  %3\n"
+#if defined(CONFIG_M68000)
+				/*
+				 * 68000 has no scaled index mode; each
+				 * movel below is one word, so double the
+				 * index by hand.
+				 */
+				"	addw  %3,%3\n"
+				"	jmp   %%pc@(1f,%3:w)\n"
+#else
+				"	jmp   %%pc@(1f,%3:w:2)\n"
+#endif
+				"4:	movel %0@-,%1@-\n"
+				"	movel %0@-,%1@-\n"
+				"	movel %0@-,%1@-\n"
+				"	movel %0@-,%1@-\n"
+				"	movel %0@-,%1@-\n"
+				"	movel %0@-,%1@-\n"
+				"	movel %0@-,%1@-\n"
+				"	movel %0@-,%1@-\n"
+				"1:	dbra  %2,4b\n"
+				"	clrw  %2\n"
+				"	subql #1,%2\n"
+				"	jpl   4b"
+				: "=a" (lsrc), "=a" (ldest), "=d" (temp),
+				  "=&d" (temp1)
+				: "0" (lsrc), "1" (ldest), "2" (temp));
+#endif
 			dest = ldest;
 			src = lsrc;
 		}
