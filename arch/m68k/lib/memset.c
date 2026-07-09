@@ -32,7 +32,7 @@ void *memset(void *s, int c, size_t count)
 	temp = count >> 2;
 	if (temp) {
 		long *ls = s;
-#if defined(CONFIG_M68000) || defined(CONFIG_COLDFIRE)
+#if defined(CONFIG_COLDFIRE)
 		for (; temp; temp--)
 			*ls++ = c;
 #else
@@ -42,7 +42,16 @@ void *memset(void *s, int c, size_t count)
 			"	andw  #7,%2\n"
 			"	lsrl  #3,%1\n"
 			"	negw  %2\n"
+#if defined(CONFIG_M68000)
+			/*
+			 * 68000 has no scaled index mode; each movel
+			 * below is one word, so double the index by hand.
+			 */
+			"	addw  %2,%2\n"
+			"	jmp   %%pc@(2f,%2:w)\n"
+#else
 			"	jmp   %%pc@(2f,%2:w:2)\n"
+#endif
 			"1:	movel %3,%0@+\n"
 			"	movel %3,%0@+\n"
 			"	movel %3,%0@+\n"
